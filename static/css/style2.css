@@ -1,0 +1,109 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-image: url('../images/Homepagebg.png');
+    background-size: cover;
+    background-position: center;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Tata letak kontainer utama */
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 80%;
+    background: rgba(255, 255, 255, 0.9); /* Transparansi */
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+/* Area form input */
+.form-section {
+    flex: 1;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+}
+
+/* Area hasil output */
+.output-section {
+    flex: 1;
+    padding: 20px;
+}
+
+h1 {
+    color: #1c5d3a; /* Ijo agak tua */
+    text-align: center;
+}
+
+label {
+    color: #87ceeb; /* Biru muda */
+    font-weight: bold;
+    display: block;
+    margin: 10px 0 5px;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+button {
+    background-color: #87ceeb; /* Biru muda */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #1c5d3a; /* Ijo lebih gelap */
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+.output-section h2 {
+    color: #1c5d3a;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    background: #f9f9f9;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+.back-button:hover {
+    background-color: #0056b3;
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Pencarian</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Tombol Back mengarah ke #beranda -->
+    <a href="{{ url_for('home') }}#rekomendasi" class="back-button">Back</a>
+
+    <!-- Halaman Hasil Pencarian -->
+    <section id="hasil-pencarian">
+        <h1>Hasil Pencarian: {{ asal }} ke {{ tujuan }}</h1>
+
+        <!-- Widget putih hanya pada tiket -->
+        <div class="ticket-container">
+            {% if data %}
+                {% for row in data %}
+                    <div class="ticket-card">
+                        <!-- Informasi Utama -->
+                        <div class="ticket-info">
+                            <p class="ticket-title2">{{ row['Jenis Kendaraan'] }}</p>
+                            <p class="ticket-name">{{ row['Nama Kendaraan'] }}</p>
+                            <div class="ticket-details">
+                                <span class="ticket-departure">{{ row['Jam Berangkat'] }}</span>
+                                <span class="ticket-duration">
+                                    {% set durasi = row['Durasi Perjalanan'] | int %}
+                                    {% set jam = durasi // 60 %}
+                                    {% set menit = durasi % 60 %}
+                                    {% if jam > 0 %}
+                                        {{ jam }} jam {% if menit > 0 %}{{ menit }} menit{% endif %}
+                                    {% else %}
+                                        {{ menit }} menit
+                                    {% endif %}
+                                </span>
+                                <span class="ticket-arrival">{{ row['Jam Tiba'] }}</span>
+                            </div>
+                        </div>
+                        <!-- Harga -->
+                        <p class="ticket-price2">Rp {{ row['Harga'] | format_ribuan }}</p>
+                        <p class="ticket-class">{{ row['Kelas'] }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <!-- Template Kartu Placeholder -->
+                <div class="ticket-card">
+                    <!-- Informasi Utama -->
+                    <div class="ticket-info">
+                        <p class="ticket-title2">Tidak Ada Kendaraan</p>
+                        <p class="ticket-name">Data tidak ditemukan</p>
+                        <div class="ticket-details">
+                            <span class="ticket-departure">--:--</span>
+                            <span class="ticket-duration">Durasi tidak tersedia</span>
+                            <span class="ticket-arrival">--:--</span>
+                        </div>
+                    </div>
+                    <!-- Harga -->
+                    <p class="ticket-price2">Rp 0</p>
+                    <p class="ticket-class">Tidak tersedia</p>
+                </div>
+            {% endif %}
+        </div>
+        
+    </section>
+</body>
+</html>

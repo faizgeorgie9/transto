@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+
+    <!-- Navigation bar -->
+    <nav>
+        <div class="logo">
+            <img src="static\images\logo.png" alt="Logo" />
+            Transto
+        </div>
+        <ul>
+            <li><a href="#beranda">Beranda</a></li>
+            <li><a href="#pilihan-kota">Pilihan Kota</a></li>
+            <li><a href="/vending">Rekomendasi Makanan</a></li>
+            <li><a href="#unggulan">Unggulan</a></li>
+            <li><a href="#cara-kerja">Cara Kerja</a></li>
+        </ul>
+    </nav>   
+
+
+    <!-- Beranda  -->
+    <section id="beranda" class="beranda">
+        <div class="beranda-content">
+            <p>Selamat datang di Transto!</p>
+            <h1>Waktu dan Biaya Terkendali dengan Transto</h1>
+            <p>PILIHAN TRANSPORTASI</p>
+            <img src="{{ url_for('static', filename='images/transportasi.png') }}" alt="Pilihan Transportasi">
+            <a href="#rekomendasi" class="beranda-btn">Coba Sekarang</a>
+            <a href="/vending" class="beranda-btn" style="margin-left: 10px; background-color: #214856;">Rekomendasi Makanan</a>
+        </div>
+
+        <div class="beranda-image">
+            <img src="{{ url_for('static', filename='images/Homepageimg.png') }}" alt="Globe">
+        </div>
+    </section>
+
+    <!-- Rekomendasi -->
+    <section id="rekomendasi" class="rekomendasi">
+        <h2>Cari Rekomendasi</h2>
+        <div class="rekomendasi-container">
+            <!-- Tab Menu -->
+            <div class="tabs-input">
+                <div class="tabinput active" id="rekomendasiTab" onclick="pindahTab('rekomendasi')">Cari Rekomendasi</div>
+                <div class="tabinput" id="semuaTab" onclick="pindahTab('semua')">Lihat Semua</div>
+            </div>
+
+            <!-- Konten Tab Rekomendasi -->
+            <div class="tab-konten" id="rekomendasiContent">
+                <div class="white-widget">
+                    <form action="/cari-rute" method="POST">
+                        <select name="asal" required>
+                            <option value="" disabled selected>Kota Asal</option>
+                            {% for kota in kota_asal %}
+                                <option value="{{ kota }}">{{ kota }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="tujuan" required>
+                            <option value="" disabled selected>Kota Tujuan</option>
+                            {% for kota in kota_tujuan %}
+                                <option value="{{ kota }}">{{ kota }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="Kategori" id="kategori" required>
+                            <option value="Harga" selected>Harga</option> 
+                            <option value="Durasi">Durasi</option>
+                            <option value="Bobot">Bobot</option>
+                        </select>
+                        <input type="time" name="Jam" id="Waktu" placeholder="Waktu Berangkat" value="09:00" required />
+                        <input type="number" name="Durasi" id="Durasi" placeholder="Masukkan Durasi (Menit)" min="1" max="1440" step="1" required />
+                        <select name="transit" id="transit" required>
+                            <option value="Transit" selected>Transit</option> 
+                            <option value="Non Transit">Non Transit</option>
+                        </select>
+                        <label for="Budget">Budget (Rp): <span id="budgetValue">{{ 500000 | format_ribuan }}</span></label>
+                        <input type="range" name="Biaya" id="Budget" min="100000" max="5000000" value="500000" step="10000" 
+                            oninput="document.getElementById('budgetValue').textContent = (new Intl.NumberFormat('id-ID').format(this.value))" />
+                        <button type="submit" class="search-btn">Cari</button>
+                    </form>
+                </div>
+                <!-- Hasil Rekomendasi -->
+                {% if hasil_rekomendasi %}
+                <div class="hasil">
+                    <div class="rekomendasi-card">
+                        <h3 class="ticket-title">Rekomendasi Kami</h3>
+                        <div class="ticket-body">
+                            <!-- Tampilkan hasil rekomendasi -->
+                            <div class="ticket-header">
+                                <div class="ticket-row2">
+                                    <strong>Bobot :</strong>
+                                    <span>{{ hasil_rekomendasi.bobot }}</span>
+                                </div>
+                                <div class="ticket-row">
+                                    <strong>Durasi :</strong>
+                                    <span>
+                                        {% set jam = hasil_rekomendasi.durasi // 60 %}
+                                        {% set menit = hasil_rekomendasi.durasi % 60 %}
+                                        {% if jam > 0 %}
+                                            {{ jam }} jam
+                                        {% endif %}
+                                        {% if menit > 0 %}
+                                            {{ menit }} menit
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ticket-content">
+                                {% for i in range(hasil_rekomendasi.rute | length) %}
+                                <div class="ticket-widget">
+                                    <div class="ticket-left">
+                                        <div class="ticket-rute">
+                                            <strong class="ticket-label">Rute {{ i + 1 }} : {{ hasil_rekomendasi.rute[i] }}</strong>
+                                        </div>
+                                        <div class="ticket-rute2">
+                                            <strong class="ticket-label">{{ hasil_rekomendasi.transit }} Ke : {{ i + 1 }}</strong>
+                                        </div>
+                                        <div class="ticket-row">
+                                            <span class="ticket-type">{{ hasil_rekomendasi.kendaraan[i] }}</span>
+                                        </div>
+                                        <div class="ticket-row">
+                                            <span class="ticket-time-range">{{ hasil_rekomendasi.berangkat[i] }} - {{ hasil_rekomendasi.tiba[i] }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="ticket-right">
+                                        <span class="ticket-price">Rp {{ hasil_rekomendasi.harga[i] | format_ribuan }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button class="book-button" onclick="history.back()">Kembali</button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Jika form belum dikirimkan atau tidak ada hasil -->
+                <div class="hasil">
+                    <div class="rekomendasi-card">
+                        <h3 class="ticket-title">Rekomendasi Kami</h3>
+                        <div class="ticket-body">
+                            {% if request.method == 'POST' %}
+                            <p>Tidak ada rekomendasi yang ditemukan.</p>
+                            {% else %}
+                            <p>Silakan isi form untuk mencari rute.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Konten Tab Lihat Semua -->
+            <div class="tab-konten" id="semuaContent" style="display: none;">
+                <div class="white-widget">
+                    <form>
+                        <select name="asal" id="asalSemua"  required>
+                            <option value="" disabled selected>Kota Asal</option>
+                            {% for kota in kota_asal %}
+                                <option value="{{ kota }}">{{ kota }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="tujuan" id="tujuanSemua"  required>
+                            <option value="" disabled selected>Kota Tujuan</option>
+                            {% for kota in kota_tujuan %}
+                                <option value="{{ kota }}">{{ kota }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="search-btn" onclick="searchTransport()">Cari</button>
+                    </form>
+                </div>
+            </div>
+    </section>
+
+    <!-- Script untuk Tab Lihat Semua -->
+    <script>
+        function searchTransport() {
+            // Ambil nilai dari input
+            const asal = document.getElementById('asalSemua').value;
+            const tujuan = document.getElementById('tujuanSemua').value;
+
+            // Cek apakah kedua input sudah terisi
+            if (asal && tujuan) {
+                // Arahkan ke halaman baru dengan query parameter
+                window.location.href = `/hasil-pencarian?asal=${asal}&tujuan=${tujuan}`;
+            } else {
+                alert("Silakan isi kota asal dan kota tujuan terlebih dahulu.");
+            }
+        }
+    </script>
+
+    <!-- Fungsi pindah tab -->
+    <script>
+        // Set default active tab and content on page load
+        window.onload = function() {
+            pindahTab('rekomendasi');
+        };
+    
+        // Tab switching functionality
+        function pindahTab(tabName) {
+            const rekomendasiTab = document.getElementById('rekomendasiTab');
+            const semuaTab = document.getElementById('semuaTab');
+            const rekomendasiContent = document.getElementById('rekomendasiContent');
+            const semuaContent = document.getElementById('semuaContent');
+    
+            if (tabName === 'rekomendasi') {
+                rekomendasiTab.classList.add('active');
+                semuaTab.classList.remove('active');
+                rekomendasiContent.style.display = 'block';
+                semuaContent.style.display = 'none';
+            } else {
+                semuaTab.classList.add('active');
+                rekomendasiTab.classList.remove('active');
+                semuaContent.style.display = 'block';
+                rekomendasiContent.style.display = 'none';
+            }
+        }
+    </script>
+
+
+    <!-- Pilihan Kota -->
+    <section id="pilihan-kota" class="pilihan-kota">
+        <div class="pilihan-kota-content">
+            <h1>Pilihan Kota</h1>
+            <p>Temukan kota-kota yang tersedia untuk berbagai moda transportasi dan mulai rencanakan perjalanan seru Anda!</p>
+        </div>
+
+        <!-- Tab navigation -->
+        <div class="tabs">
+            <div class="tab active" id="busTab" onclick="changeTab('bus')">Bus</div>
+            <div class="tab" id="keretaTab" onclick="changeTab('kereta')">Kereta</div>
+            <div class="tab" id="ferryTab" onclick="changeTab('ferry')">Ferry</div>
+            <div class="tab" id="pesawatTab" onclick="changeTab('pesawat')">Pesawat</div>
+        </div>
+        
+        <!-- Konten Tab -->
+        <div class="tab-content bus active">
+            <div class="city-options">
+                <div class="city-widget">Madiun</div>
+                <div class="city-widget">Malang</div>
+                <div class="city-widget">Probolinggo</div>
+                <div class="city-widget">Surabaya</div>
+                <div class="city-widget">Cilacap</div>
+                <div class="city-widget">Banyumas</div>
+                <div class="city-widget">Kebumen</div>
+                <div class="city-widget">Purworejo</div>
+                <div class="city-widget">Klaten</div>
+                <div class="city-widget">Sragen</div>
+                <div class="city-widget">Semarang</div>
+                <div class="city-widget">Kendal</div>
+                <div class="city-widget">Pekalongan</div>
+                <div class="city-widget">Pemalang</div>
+                <div class="city-widget">Tegal</div>
+                <div class="city-widget">Brebes</div>
+                <div class="city-widget">Solo</div>
+                <div class="city-widget">Yogyakarta</div>
+                <div class="city-widget">Bandung</div>
+                <div class="city-widget">Bekasi</div>
+                <div class="city-widget">Bogor</div>
+                <div class="city-widget">Ciamis</div>
+                <div class="city-widget">Cirebon</div>
+                <div class="city-widget">Garut</div>
+                <div class="city-widget">Karawang</div>
+                <div class="city-widget">Majalengka</div>
+                <div class="city-widget">Purwakarta</div>
+                <div class="city-widget">Subang</div>
+                <div class="city-widget">Sumedang</div>
+                <div class="city-widget">Tasikmalaya</div>
+                <div class="city-widget">Banjar</div>
+                <div class="city-widget">Depok</div>
+                <div class="city-widget">Jakarta</div>
+                <div class="city-widget">Banyuwangi</div>
+                <div class="city-widget">Kediri</div>
+                <div class="city-widget">Pati</div>
+                <div class="city-widget">Batang</div>
+                <div class="city-widget">Jember</div>
+                <div class="city-widget">Pasuruan</div>
+                <div class="city-widget">Situbondo</div>
+                <div class="city-widget">Tuban</div>
+                <div class="city-widget">Banjarnegara</div>
+                <div class="city-widget">Wonosobo</div>
+                <div class="city-widget">Magelang</div>
+                <div class="city-widget">Kudus</div>
+                <div class="city-widget">Temanggung</div>
+                <div class="city-widget">Indramayu</div>
+            </div>
+        </div>
+        
+        <div class="tab-content kereta">
+            <div class="city-options">
+                <div class="city-widget">Malang</div>
+                <div class="city-widget">Bekasi</div>
+                <div class="city-widget">Garut</div>
+                <div class="city-widget">Bandung</div>
+                <div class="city-widget">Kebumen</div>
+                <div class="city-widget">Pasuruan</div>
+                <div class="city-widget">Ciamis</div>
+                <div class="city-widget">Semarang</div>
+                <div class="city-widget">Cirebon</div>
+                <div class="city-widget">Pekalongan</div>
+                <div class="city-widget">Pemalang</div>
+                <div class="city-widget">Surabaya</div>
+                <div class="city-widget">Sragen</div>
+                <div class="city-widget">Karawang</div>
+                <div class="city-widget">Jakarta</div>
+                <div class="city-widget">Bogor</div>
+                <div class="city-widget">Yogyakarta</div>
+                <div class="city-widget">Banyuwangi</div>
+                <div class="city-widget">Banyumas</div>
+                <div class="city-widget">Jogja</div>
+            </div>
+        </div>
+        
+        <div class="tab-content ferry">
+            <div class="city-options">
+                <div class="city-widget">Lampung</div>
+                <div class="city-widget">Banten</div>
+                <div class="city-widget">Bali</div>
+            </div>
+        </div>
+        
+        <div class="tab-content pesawat">
+            <div class="city-options">
+                <div class="city-widget">Malang</div>
+                <div class="city-widget">Bekasi</div>
+                <div class="city-widget">Garut</div>
+                <div class="city-widget">Bandung</div>
+                <div class="city-widget">Kebumen</div>
+                <div class="city-widget">Pasuruan</div>
+                <div class="city-widget">Ciamis</div>
+                <div class="city-widget">Semarang</div>
+                <div class="city-widget">Cirebon</div>
+                <div class="city-widget">Pekalongan</div>
+                <div class="city-widget">Pemalang</div>
+                <div class="city-widget">Surabaya</div>
+                <div class="city-widget">Sragen</div>
+                <div class="city-widget">Karawang</div>
+                <div class="city-widget">Jakarta</div>
+                <div class="city-widget">Bogor</div>
+                <div class="city-widget">Yogyakarta</div>
+                <div class="city-widget">Banyuwangi</div>
+                <div class="city-widget">Banyumas</div>
+                <div class="city-widget">Jogja</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fungsi Tab nya -->
+    <script>
+        function changeTab(tab) {
+            // Menghapus class 'active' dari semua tab dan konten
+            document.querySelectorAll('.tab').forEach(function(tabElement) {
+                tabElement.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(function(contentElement) {
+                contentElement.classList.remove('active');
+            });
+
+            // Menambahkan class 'active' pada tab yang diklik dan kontennya
+            document.getElementById(`${tab}Tab`).classList.add('active');
+            document.querySelector(`.tab-content.${tab}`).classList.add('active');
+        }
+    </script>
+
+
+    <!-- Unggulan -->
+    <section id="unggulan" class="unggulan">
+        <h2>Kenapa Pilih Transto?</h2>
+        <div class="keunggulan-container">
+            <div class="keunggulan">
+                <div class="icon">✔</div>
+                <h3>Efektif</h3>
+                <p>Rekomendasi transportasi terbaik berdasarkan analisis harga dan waktu.</p>
+            </div>
+            <div class="keunggulan">
+                <div class="icon">💸</div>
+                <h3>Hemat</h3>
+                <p>Temukan perjalanan dengan biaya terjangkau tanpa mengorbankan kenyamanan.</p>
+            </div>
+            <div class="keunggulan">
+                <div class="icon">⚡</div>
+                <h3>Cepat</h3>
+                <p>Solusi transportasi yang memprioritaskan waktu Anda.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Cara Kerja -->
+    <section id="cara-kerja" class="cara-kerja">
+        <h2>Bagaimana Transto Bekerja?</h2>
+        <div class="cara-kerja-container">
+            <div class="image-container">
+                <img src="{{ url_for('static', filename='images/carakerjaimg.png') }}" alt="Transport Modes">
+            </div>
+            <div class="text-container">
+                <div class="step">
+                    <div class="icon">📍</div>
+                    <div class="content">
+                        <h3>Masukkan Informasi Perjalanan</h3>
+                        <p>Ketik lokasi asal, tujuan, dan waktu keberangkatan Anda. Transto akan mulai menganalisis data untuk mencarikan opsi terbaik.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="icon">🎯</div>
+                    <div class="content">
+                        <h3>Dapatkan Rekomendasi</h3>
+                        <p>Transto menyajikan daftar transportasi dengan detail harga, waktu tempuh, dan moda transportasi yang tersedia, semuanya di satu layar.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="icon">🚗</div>
+                    <div class="content">
+                        <h3>Pilih dan Mulai Perjalanan</h3>
+                        <p>Pilih opsi yang sesuai dengan kebutuhan Anda dan lanjutkan dengan perjalanan yang hemat waktu dan biaya!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-and-text">
+                    <img src="static/images/logo.png" alt="Logo" />
+                    <span>Transto</span>
+                </div>
+                <p>Transto adalah platform rekomendasi transportasi yang membantu Anda memilih perjalanan terbaik berdasarkan harga dan waktu, dengan tujuan memberikan solusi yang efisien dan hemat.</p>
+            </div>                               
+            <div class="footer-links">
+                <h3>Tentang Kami</h3>
+                <ul>
+                    <li><a href="#unggulan">Unggulan</a></li>
+                    <li><a href="#cara-kerja">Cara Kerja</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Transto. Semua hak cipta dilindungi.</p>
+        </div>
+    </footer>
+
+    

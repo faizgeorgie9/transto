@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Vending Machine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style2.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('home') }}" class="back-button">Back</a>
+
+    <div class="container">
+        <!-- Form Input -->
+        <div class="form-section">
+            <h1>Rekomendasi Makanan</h1>
+            <form method="POST">
+                <label for="uang_user">Masukkan Uang Anda (Rp):</label>
+                <input type="number" id="uang_user" name="uang_user" required>
+                <button type="submit">Cari Rekomendasi Terbaik</button>
+            </form>
+        </div>
+
+        <!-- Hasil Output -->
+        <div class="output-section">
+            {% if error_message %}
+            <p class="error">{{ error_message }}</p>
+            {% endif %}
+
+            {% if selected_items %}
+            <h2>Rekomendasi Menu :</h2>
+            <ul>
+                {% for item in selected_items %}
+                <li>{{ item.nama }} - Rp {{ item.harga | format_ribuan }} (Skor Gizi: {{ item.gizi }})</li>
+                {% endfor %}
+            </ul>
+            <p><strong>Total Harga:</strong> Rp {{ total_harga | format_ribuan }}</p>
+            <p><strong>Total Skor Gizi:</strong> {{ total_gizi }}</p>
+            <p><strong>Uang Anda:</strong> Rp {{ uang_user | format_ribuan }}</p>
+            
+            {% if kembalian %}
+            <h3>Kembalian Anda:</h3>
+            <ul>
+                {% for nominal, jumlah in kembalian %}
+                <li>Rp {{ nominal | format_ribuan }} x{{ jumlah }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
